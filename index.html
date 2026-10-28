@@ -89,6 +89,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .app.best .pr b{color:var(--good)}
 .go{grid-column:2/4;display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:500;text-decoration:none;border-radius:10px;padding:7px 11px;background:var(--soft);color:var(--ink)}
+button.btn{border:none;cursor:pointer}
 .btn.pri{background:var(--accent);color:var(--accent-ink)}
 .btn svg.i{width:14px;height:14px}
 .banner{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--sub)}
@@ -184,7 +185,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
       <section class="card">
         <details class="how">
           <summary>价格是怎么估算的</summary>
-          <p><b>Yandex Go</b>：各城市「经济型」起步价和每公里价来自 Kazinform 统计（阿拉木图、阿斯塔纳起步 420 ₸，每公里最多 65 ₸），每分钟按 12 ₸ 估算；高峰、雨雪会自动加价。<b>Uber</b> 在哈萨克斯坦和 Yandex 共用车队，按相近价格估算。</p>
+          <p><b>Yandex Go</b>：各城市「经济型」起步价和每公里价来自 Kazinform 统计（阿拉木图、阿斯塔纳起步 420 ₸，每公里最多 65 ₸），每分钟按 12 ₸ 估算；高峰、雨雪会自动加价。<b>Uber KZ</b> 是 Yandex 在哈萨克斯坦运营的独立 App，和 Yandex Go 共用车队，按相近价格估算。</p>
           <p><b>inDrive</b>：议价模式，调查显示平均比市场低约 12%，所以给一个区间；需求暴涨时司机出价也会涨。<b>Aparu</b>：本土老牌 App，同样可以自己出价，按略低于市场价的区间估算，数据最少，仅供参考。</p>
           <p><b>Qajet</b>：2026 年 10 月上线，不收司机佣金、暂无动态加价，媒体实测比 Yandex 经济型便宜约 25–38%，这里按 28% 估算；车少，高峰和坏天气可能叫不到。</p>
           <p>距离：如果没接 2GIS，就用两点直线距离 × 1.35 估算道路距离。接入 2GIS 后改用真实驾车路线和实时路况。</p>
@@ -253,8 +254,8 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   var APPS = [
     {id:"yandex",name:"Yandex Go",mono:"Y",col:"#2f3b45",
       play:"https://play.google.com/store/apps/details?id=ru.yandex.taxi",ios:"https://apps.apple.com/kz/app/id472650686"},
-    {id:"uber",name:"Uber",mono:"U",col:"#55626c",
-      play:"https://play.google.com/store/apps/details?id=com.ubercab",ios:"https://apps.apple.com/kz/app/id368677368"},
+    {id:"uber",name:"Uber KZ",mono:"U",col:"#55626c",
+      play:"https://play.google.com/store/apps/details?id=ru.yandex.uber_kz",ios:"https://apps.apple.com/kz/app/id1447876124"},
     {id:"indrive",name:"inDrive",mono:"iD",col:"#3f7d5c",
       play:"https://play.google.com/store/apps/details?id=sinet.startup.inDriver",ios:"https://apps.apple.com/kz/app/id780125801"},
     {id:"aparu",name:"Aparu",mono:"A",col:"#8a5a2b",
@@ -392,7 +393,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
     var bad=k==="weather"||k==="night";
     return {
       yandex:{lo:y,hi:y,tag:k==="normal"?"按里程计价":"自动加价 ×"+SURGE[k],wait:{normal:"3–7 分钟",peak:"5–12 分钟",weather:"可能 15 分钟以上",night:"5–15 分钟"}[k]},
-      uber:{lo:y,hi:y*1.03,tag:"与 Yandex 同一车队",wait:{normal:"3–7 分钟",peak:"5–12 分钟",weather:"可能 15 分钟以上",night:"5–15 分钟"}[k]},
+      uber:{lo:y,hi:y*1.03,tag:"与 Yandex 共用车队",wait:{normal:"3–7 分钟",peak:"5–12 分钟",weather:"可能 15 分钟以上",night:"5–15 分钟"}[k]},
       indrive:{lo:ind*0.9,hi:ind*1.1,tag:"可自己出价",bid:true,wait:bad?"出价低基本没人接":k==="peak"?"出价低可能没人接":"看司机接不接",risk:bad},
       aparu:{lo:ap*0.9,hi:ap*1.1,tag:"可自己出价",bid:true,wait:bad?"司机较少，可能等很久":"司机比大平台少",risk:bad},
       qajet:{lo:base*0.72,hi:base*0.72,tag:"暂无动态加价",wait:k==="normal"?"车少，可能要多等":"很可能叫不到车",risk:k!=="normal"}
@@ -400,11 +401,18 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   }
 
   function deepLink(a){
-    if(a.id==="uber"&&state.from&&state.to){
-      return "https://m.uber.com/ul/?action=setPickup&pickup[latitude]="+state.from.lat+"&pickup[longitude]="+state.from.lon+
-        "&dropoff[latitude]="+state.to.lat+"&dropoff[longitude]="+state.to.lon+"&dropoff[nickname]="+encodeURIComponent(state.to.name);
+    // Yandex Go official route link (opens the app with the route filled in; falls back to the app store)
+    if(a.id==="yandex"&&state.from&&state.to){
+      return "https://3.redirect.appmetrica.yandex.com/route?start-lat="+state.from.lat+"&start-lon="+state.from.lon+
+        "&end-lat="+state.to.lat+"&end-lon="+state.to.lon+"&tariffClass=econom&ref=salystyr&lang=ru&appmetrica_tracking_id=1178268795219780156";
     }
     return null;
+  }
+  function copyDest(btn){
+    if(!state.to) return;
+    var t=state.to.name, done=function(){btn.textContent="已复制目的地";setTimeout(function(){btn.textContent="复制目的地"},1500)};
+    var fail=function(){btn.textContent=t;btn.style.userSelect="all"};
+    try{navigator.clipboard.writeText(t).then(done,fail)}catch(e){fail()}
   }
 
   function render(){
@@ -439,9 +447,11 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
         "<div class='pr'><b>"+(r.bid?money(r.lo):money(r.lo))+"</b><small>"+
           (r.bid?"出价区间 – "+money(r.hi):(best?COND_NAME[state.cond]:(diff>0?"+"+money(diff):"")))+"</small></div>"+
         "<div class='ds'><span class='w'"+(r.risk?" style='color:var(--warn)'":"")+">"+icon("clock")+r.wait+"</span><span>"+r.tag+"</span></div>"+
-        "<div class='go'>"+(link?"<a class='btn pri' href='"+link+"' target='_blank' rel='noopener'>"+icon("ext")+"带上路线打开 Uber</a>":"")+
+        "<div class='go'>"+(link?"<a class='btn pri' href='"+link+"' target='_blank' rel='noopener'>"+icon("ext")+"带路线打开 "+a.name+"</a>":
+            (state.to?"<button type='button' class='btn copy'>"+icon("pin")+"复制目的地</button>":""))+
           "<a class='btn' href='"+a.play+"' target='_blank' rel='noopener'>"+icon("ext")+"Android</a>"+
           "<a class='btn' href='"+a.ios+"' target='_blank' rel='noopener'>"+icon("ext")+"iPhone</a></div>";
+      var cb=el.querySelector(".copy"); if(cb) cb.addEventListener("click",function(){copyDest(cb)});
       box.appendChild(el);
     });
   }
