@@ -1,40 +1,46 @@
 <!doctype html>
-<html lang="zh">
+<html lang="kk">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>哈萨克斯坦打车比价</title>
+<title>Taksi Salystyr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800;900&display=swap">
 <style>
-/* Layout: a ride-app style route card (from → to) on top, ranked app list below; wide screens put route card left and list right */
+/* Layout: ride-app route card + map on the left, ranked apps on the right; one column on phones */
 :root{
   --bg:#eceff1; --card:#ffffff; --ink:#0f1417; --sub:#5d6870; --line:#dfe4e7; --soft:#f4f6f7;
   --accent:#0b6fb8; --accent-ink:#ffffff; --good:#0f8a4f; --good-soft:#e3f4ea; --warn:#b54708;
-  --f-ui:"Golos Text","Noto Sans SC",system-ui,-apple-system,"PingFang SC",sans-serif;
-  --f-cn:"Noto Sans SC","Golos Text",system-ui,sans-serif;
+  --map-a:#dde6ea; --map-b:#cfdbe1;
+  --f-ui:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0b0f12; --card:#151b1f; --ink:#eef2f4; --sub:#97a3aa; --line:#263037; --soft:#1c2429;
-  --accent:#4aa8f0; --accent-ink:#06121c; --good:#3ecf86; --good-soft:#123323; --warn:#f5a25a; color-scheme:dark}}
+  --accent:#4aa8f0; --accent-ink:#06121c; --good:#3ecf86; --good-soft:#123323; --warn:#f5a25a;
+  --map-a:#1a242a; --map-b:#212d34; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0b0f12; --card:#151b1f; --ink:#eef2f4; --sub:#97a3aa; --line:#263037; --soft:#1c2429;
-  --accent:#4aa8f0; --accent-ink:#06121c; --good:#3ecf86; --good-soft:#123323; --warn:#f5a25a; color-scheme:dark}
+  --accent:#4aa8f0; --accent-ink:#06121c; --good:#3ecf86; --good-soft:#123323; --warn:#f5a25a;
+  --map-a:#1a242a; --map-b:#212d34; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-cn);font-size:15px;line-height:1.5;
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
-.wrap{max-width:1080px;margin:0 auto;display:grid;gap:16px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:16px}
 svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.01em}
 .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--ink);color:var(--bg);display:grid;place-items:center}
 .brand small{display:block;font-weight:500;font-size:12px;color:var(--sub);letter-spacing:0}
-select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.tools{display:flex;gap:8px;align-items:center}
+select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;max-width:52vw}
+.lang{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:2px}
+.lang button{font:inherit;font-size:13px;font-weight:600;border:none;background:none;color:var(--sub);padding:6px 9px;border-radius:8px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .main{display:grid;gap:16px;grid-template-columns:1fr}
-@media (min-width:900px){.main{grid-template-columns:380px 1fr;align-items:start}.left{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}}
+@media (min-width:920px){.main{grid-template-columns:400px 1fr;align-items:start}}
 .card{background:var(--card);border-radius:18px;padding:16px;display:grid;gap:14px;min-width:0}
-.left{display:grid;gap:16px}
+.left{display:grid;gap:16px;min-width:0}
 
 /* route */
 .route{display:grid;grid-template-columns:22px 1fr 40px;column-gap:10px;align-items:center}
@@ -43,26 +49,35 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 .dot.to{border-radius:2px;background:var(--accent)}
 .rail .ln{flex:1;width:2px;background:var(--line);margin:4px 0}
 .inp{position:relative}
-.inp input{font:inherit;font-size:16px;width:100%;border:none;background:var(--soft);color:var(--ink);border-radius:12px;padding:12px 12px}
+.inp input{font:inherit;font-size:16px;width:100%;border:none;background:var(--soft);color:var(--ink);border-radius:12px;padding:12px}
 .inp input::placeholder{color:var(--sub)}
 .inp + .inp{margin-top:8px}
 .swap{grid-row:1/3;grid-column:3;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}
-.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.14);z-index:5;max-height:260px;overflow:auto}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.14);z-index:20;max-height:260px;overflow:auto}
 .sugg button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;background:none;border:none;color:var(--ink);padding:10px 12px;cursor:pointer}
 .sugg button:hover,.sugg button:focus-visible{background:var(--soft)}
 .sugg small{color:var(--sub);display:block;font-size:12px}
 .quick{display:flex;gap:6px;flex-wrap:wrap}
 .qp{font:inherit;font-size:13px;border:none;background:var(--soft);color:var(--ink);border-radius:999px;padding:6px 10px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .qp svg.i{width:14px;height:14px}
+
+/* map */
+.mapcard{padding:0;overflow:hidden;position:relative}
+#map{height:280px;width:100%;background:var(--map-a)}
+@media (min-width:920px){#map{height:320px}}
+.maphint{position:absolute;left:10px;right:10px;bottom:10px;background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:13px;display:flex;gap:8px;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,.12);z-index:5}
+.maphint svg.i{width:15px;height:15px;color:var(--sub)}
+#schem{width:100%;height:100%;display:block}
+
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stat{background:var(--soft);border-radius:12px;padding:10px 12px}
-.stat b{display:block;font-family:var(--f-ui);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--sub)}
 .adj{display:grid;gap:6px}
-.adj .row{display:flex;justify-content:space-between;font-size:13px;color:var(--sub)}
+.adj .row{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--sub)}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--soft);border-radius:12px;padding:3px;gap:3px}
-.seg button{font:inherit;font-size:13px;border:none;background:none;color:var(--sub);border-radius:9px;padding:8px 4px;cursor:pointer;display:grid;justify-items:center;gap:2px}
+.seg button{font:inherit;font-size:12.5px;line-height:1.2;border:none;background:none;color:var(--sub);border-radius:9px;padding:8px 2px;cursor:pointer;display:grid;justify-items:center;gap:3px;text-align:center}
 .seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .label{font-size:12px;color:var(--sub);font-weight:500}
 .maplink{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:500;text-decoration:none;font-size:14px}
@@ -71,19 +86,21 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 /* results */
 .rhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
-.rhead h2{margin:0;font-size:18px;font-weight:900}
+.rhead h2{margin:0;font-size:18px;font-weight:900;text-wrap:balance}
 .rhead span{font-size:13px;color:var(--sub)}
 .apps{display:grid}
 .app{display:grid;grid-template-columns:44px 1fr auto;gap:2px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
 .app:first-child{border-top:none}
-.ic{grid-row:1/3;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-family:var(--f-ui);font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em}
+.app.na{opacity:.55}
+.ic{grid-row:1/3;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em}
 .nm{font-weight:700;font-size:16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.nm .tn{font-weight:500;font-size:13px;color:var(--sub)}
 .pill{font-size:11px;font-weight:700;border-radius:6px;padding:2px 6px;background:var(--good-soft);color:var(--good)}
 .pill.warn{background:transparent;color:var(--warn);padding:0;font-weight:500}
 .ds{font-size:13px;color:var(--sub);grid-column:2;display:flex;gap:4px 10px;flex-wrap:wrap;align-items:center}
 .ds .w{display:inline-flex;gap:4px;align-items:center}
 .ds svg.i{width:13px;height:13px}
-.pr{grid-row:1/3;grid-column:3;text-align:right;font-family:var(--f-ui);font-variant-numeric:tabular-nums}
+.pr{grid-row:1/3;grid-column:3;text-align:right;font-variant-numeric:tabular-nums}
 .pr b{display:block;font-size:19px;font-weight:700;white-space:nowrap}
 .pr small{font-size:12px;color:var(--sub);white-space:nowrap}
 .app.best .pr b{color:var(--good)}
@@ -99,6 +116,7 @@ button.btn{border:none;cursor:pointer}
 .quotes input{font:inherit;font-variant-numeric:tabular-nums;width:100%;border:none;background:var(--soft);color:var(--ink);border-radius:10px;padding:10px 12px}
 .qout{font-size:15px}
 .qout b{color:var(--good)}
+.qhint{color:var(--sub);font-size:13px}
 details.how{font-size:14px;color:var(--sub)}
 details.how summary{cursor:pointer;color:var(--ink);font-weight:700}
 details.how p{max-width:72ch}
@@ -118,7 +136,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4v16M7 4 3 8M7 4l4 4M17 20V4m0 16-4-4m4 4 4-4"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
   <symbol id="i-plane" viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 7.5 1L16 6.5a2.1 2.1 0 0 1 3 3L15 13.5l1 7.5-1.5 1.5-2.5-7.5"/></symbol>
-  <symbol id="i-train" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4m6 4-2-4"/><circle cx="9" cy="14" r=".6"/><circle cx="15" cy="14" r=".6"/></symbol>
+  <symbol id="i-train" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4m6 4-2-4"/></symbol>
   <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 13H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
   <symbol id="i-mount" viewBox="0 0 24 24"><path d="m3 20 6-11 4 6 2-3 6 8H3z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
@@ -129,68 +147,82 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14m6-12v14"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8v.5"/></symbol>
-  <symbol id="i-handshake" viewBox="0 0 24 24"><path d="M3 12l4-4 4 2 3-2 3 1 4 3M7 14l3 3a1.5 1.5 0 0 0 2-2m0 0 2 2a1.5 1.5 0 0 0 2-2l-3-3"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16h14M6 16l1.6-5.2A2 2 0 0 1 9.5 9.4h5a2 2 0 0 1 1.9 1.4L18 16v3h-2v-1.5H8V19H6z"/></symbol>
+  <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M4 18v-5a2 2 0 0 1 4 0v2h8v-2a2 2 0 0 1 4 0v5H4z"/><path d="M6 11V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+  <symbol id="i-van" viewBox="0 0 24 24"><path d="M3 16V8a2 2 0 0 1 2-2h10l5 5v5H3z"/><path d="M15 6v5h5M3 11h12"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></symbol>
 </svg>
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><div class="mark"><svg class="i"><use href="#i-pin"/></svg></div><div>Taksi Salystyr<small>哈萨克斯坦打车比价</small></div></div>
-    <select id="city" aria-label="城市"></select>
+    <div class="brand"><div class="mark"><svg class="i"><use href="#i-pin"/></svg></div><div>Taksi Salystyr<small data-t="tagline"></small></div></div>
+    <div class="tools">
+      <select id="city" aria-label="City"></select>
+      <div class="lang" role="group" aria-label="Language">
+        <button data-l="kk" aria-pressed="true">ҚАЗ</button><button data-l="ru" aria-pressed="false">РУС</button>
+      </div>
+    </div>
   </div>
 
   <div class="main">
     <div class="left">
-      <section class="card" aria-label="路线">
+      <section class="card">
         <div class="route">
           <div class="rail"><span class="dot"></span><span class="ln"></span><span class="dot to"></span></div>
-          <div class="inp"><input id="from" autocomplete="off" placeholder="从哪里出发"><div class="sugg" id="s-from" hidden></div></div>
-          <button class="swap" id="swap" aria-label="交换起点和终点"><svg class="i"><use href="#i-swap"/></svg></button>
-          <div class="inp"><input id="to" autocomplete="off" placeholder="去哪里"><div class="sugg" id="s-to" hidden></div></div>
+          <div class="inp"><input id="from" autocomplete="off"><div class="sugg" id="s-from" hidden></div></div>
+          <button class="swap" id="swap"><svg class="i"><use href="#i-swap"/></svg></button>
+          <div class="inp"><input id="to" autocomplete="off"><div class="sugg" id="s-to" hidden></div></div>
         </div>
         <div class="quick" id="quick"></div>
-        <div class="stats">
-          <div class="stat"><b id="kmv">–</b><span>公里</span></div>
-          <div class="stat"><b id="minv">–</b><span>分钟车程</span></div>
+        <div class="adj">
+          <span class="label" data-t="classLabel"></span>
+          <div class="seg" id="cls"></div>
         </div>
         <div class="adj">
-          <div class="row"><span>手动调整距离</span><span id="srcnote">按直线距离估算</span></div>
-          <input type="range" id="km" min="1" max="60" step="0.5" value="8" aria-label="距离（公里）">
+          <span class="label" data-t="condLabel"></span>
+          <div class="seg" id="cond"></div>
         </div>
-        <div class="adj">
-          <span class="label">现在的情况</span>
-          <div class="seg" id="cond">
-            <button data-c="normal" aria-pressed="true"><svg class="i"><use href="#i-sun"/></svg>平时</button>
-            <button data-c="peak" aria-pressed="false"><svg class="i"><use href="#i-jam"/></svg>高峰</button>
-            <button data-c="weather" aria-pressed="false"><svg class="i"><use href="#i-rain"/></svg>雨雪</button>
-            <button data-c="night" aria-pressed="false"><svg class="i"><use href="#i-moon"/></svg>深夜节日</button>
-          </div>
-        </div>
-        <a class="maplink" id="maplink" href="#" target="_blank" rel="noopener"><svg class="i"><use href="#i-map"/></svg>在 2GIS 中查看这条路线</a>
       </section>
-      <div class="banner" id="mode"><svg class="i"><use href="#i-info"/></svg><span></span></div>
+
+      <section class="card mapcard">
+        <div id="map"><svg id="schem" aria-hidden="true"></svg></div>
+        <div class="maphint" id="maphint"><svg class="i"><use href="#i-info"/></svg><span></span></div>
+      </section>
+
+      <section class="card">
+        <div class="stats">
+          <div class="stat"><b id="kmv">–</b><span data-t="km"></span></div>
+          <div class="stat"><b id="minv">–</b><span data-t="min"></span></div>
+        </div>
+        <div class="adj">
+          <div class="row"><span data-t="adjust"></span><span id="srcnote"></span></div>
+          <input type="range" id="km" min="1" max="60" step="0.5" value="8">
+        </div>
+        <a class="maplink" id="maplink" href="#" target="_blank" rel="noopener"><svg class="i"><use href="#i-map"/></svg><span data-t="open2gis"></span></a>
+      </section>
     </div>
 
     <div style="display:grid;gap:16px;min-width:0">
       <section class="card" aria-live="polite">
-        <div class="rhead"><h2 id="rtitle">各家价格</h2><span>经济档 · 估算</span></div>
+        <div class="rhead"><h2 id="rtitle"></h2><span id="rsub"></span></div>
         <div class="apps" id="apps"></div>
       </section>
 
       <section class="card quotes">
-        <div class="rhead"><h2>填入 App 里的真实报价</h2><span>至少两家</span></div>
+        <div class="rhead"><h2 data-t="qTitle"></h2><span data-t="qSub"></span></div>
         <div class="qgrid" id="qgrid"></div>
         <div class="qout" id="qout"></div>
       </section>
 
+      <div class="banner" id="mode"><svg class="i"><use href="#i-info"/></svg><span></span></div>
+
       <section class="card">
         <details class="how">
-          <summary>价格是怎么估算的</summary>
-          <p><b>Yandex Go</b>：各城市「经济型」起步价和每公里价来自 Kazinform 统计（阿拉木图、阿斯塔纳起步 420 ₸，每公里最多 65 ₸），每分钟按 12 ₸ 估算；高峰、雨雪会自动加价。<b>Uber KZ</b> 是 Yandex 在哈萨克斯坦运营的独立 App，和 Yandex Go 共用车队，按相近价格估算。</p>
-          <p><b>inDrive</b>：议价模式，调查显示平均比市场低约 12%，所以给一个区间；需求暴涨时司机出价也会涨。<b>Aparu</b>：本土老牌 App，同样可以自己出价，按略低于市场价的区间估算，数据最少，仅供参考。</p>
-          <p><b>Qajet</b>：2026 年 10 月上线，不收司机佣金、暂无动态加价，媒体实测比 Yandex 经济型便宜约 25–38%，这里按 28% 估算；车少，高峰和坏天气可能叫不到。</p>
-          <p>距离：如果没接 2GIS，就用两点直线距离 × 1.35 估算道路距离。接入 2GIS 后改用真实驾车路线和实时路况。</p>
-          <div class="tbl"><table><thead><tr><th>城市</th><th>Yandex 起步</th><th>每公里</th></tr></thead><tbody id="tbl"></tbody></table></div>
-          <p>来源：<a href="https://www.inform.kz/ru/skolko-stoit-poezdka-na-taksi-v-gorodah-kazahstana-01fe08" target="_blank" rel="noopener">Kazinform</a> · <a href="https://centralmedia24.kz/v-kazahstane-zapustili-otechestvennoe-taksi-qajet-na-kazahskom-yazyke/" target="_blank" rel="noopener">Centralmedia24</a> · <a href="https://informburo.kz/novosti/indrive-samyi-vygodnyi-servis-taksi-v-kazaxstane-po-rezultatam-nezavisimogo-issledovaniia" target="_blank" rel="noopener">Informburo</a> · <a href="https://docs.2gis.com/en/api/navigation/routing/start" target="_blank" rel="noopener">2GIS Routing API</a></p>
+          <summary data-t="howTitle"></summary>
+          <div id="howBody"></div>
+          <div class="tbl"><table><thead><tr><th data-t="thCity"></th><th data-t="thBase"></th><th data-t="thKm"></th></tr></thead><tbody id="tbl"></tbody></table></div>
+          <p data-t="sources"></p>
         </details>
       </section>
     </div>
@@ -199,144 +231,289 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 <script>
 (function(){
-  /* ===== 2GIS 配置：在自己的网站上部署时，把 2GIS API Key 填在这里 ===== */
+  /* ===== 2GIS: put your API key here when hosting the site yourself ===== */
   var DGIS_KEY = "cea54c26-f624-4741-968f-be9b997600ee";
 
-  // [name, slug for 2gis url, yandex boarding ₸, yandex max ₸/km, avg speed km/h, center lat, lon]
-  var CITIES = [
-    ["阿拉木图 Алматы","almaty",420,65,20,43.238,76.946],
-    ["阿斯塔纳 Астана","astana",420,65,24,51.128,71.430],
-    ["奇姆肯特 Шымкент","shymkent",310,60,26,42.317,69.596],
-    ["卡拉干达 Караганда","karaganda",320,70,28,49.806,73.085],
-    ["阿克托别 Актобе","aktobe",270,60,28,50.283,57.167],
-    ["阿特劳 Атырау","atyrau",320,57,26,47.106,51.920],
-    ["巴甫洛达尔 Павлодар","pavlodar",290,64,28,52.287,76.967],
-    ["厄斯克门 Усть-Каменогорск","ustkam",370,73,26,49.948,82.628],
-    ["塔拉兹 Тараз","taraz",220,60,28,42.900,71.367],
-    ["乌拉尔斯克 Уральск","uralsk",300,64,28,51.233,51.367],
-    ["塞梅伊 Семей","semey",300,65,28,50.411,80.227],
-    ["克孜勒奥尔达 Кызылорда","kyzylorda",240,60,28,44.853,65.509],
-    ["突厥斯坦 Туркестан","turkestan",240,55,28,43.297,68.252],
-    ["科克舍套 Кокшетау","kokshetau",350,58,28,53.283,69.383],
-    ["塔尔迪库尔干 Талдыкорган","taldykorgan",285,64,28,45.017,78.383],
-    ["彼得罗巴甫尔 Петропавловск","petropavlovsk",280,70,28,54.867,69.150],
-    ["埃基巴斯图兹 Экибастуз","ekibastuz",240,65,30,51.729,75.322],
-    ["杰兹卡兹甘 Жезказган","zhezkazgan",370,50,30,47.783,67.767]
+  var T = {
+    kk:{
+      tagline:"Такси бағаларын салыстыру",from:"Қайдан",to:"Қайда",swap:"Орындарын ауыстыру",
+      classLabel:"Көлік түрі",condLabel:"Қазіргі жағдай",km:"шақырым",min:"минут жол",adjust:"Қашықтықты қолмен өзгерту",
+      src:{manual:"Қолмен",est:"Түзу қашықтық бойынша",gis:"2GIS нақты маршруты",load:"2GIS-тен сұралуда…"},
+      open2gis:"Маршрутты 2GIS-те ашу",
+      cls:{econ:"Эконом",comfort:"Комфорт",business:"Бизнес",minivan:"Минивэн"},
+      cond:{normal:"Қалыпты",peak:"Қарбалас",weather:"Жаңбыр, қар",night:"Түн, мереке"},
+      prices:"Бағалар",estimate:"болжам",
+      best:"Ең тиімді",cheapHard:"Ең арзан, бірақ қазір көлік табу қиын",na:"Бұл санат жоқ",
+      bidRange:"ұсыныс",openRoute:"Маршрутпен ашу",copyDest:"Мекенжайды көшіру",copied:"Көшірілді",
+      tag:{km:"Шақырым мен уақыт бойынша",surge:"Автоматты үстеме ×",shared:"Yandex-пен ортақ жүргізушілер",bid:"Бағаны өзіңіз ұсынасыз",nosurge:"Үстеме баға әзірге жоқ"},
+      wait:{fast:["3–7 мин","5–12 мин","15 минуттан көп болуы мүмкін","5–15 мин"],
+        indrive:["Жүргізуші қабылдаса","Төмен бағаны алмауы мүмкін","Төмен бағаны ешкім алмайды","Төмен бағаны ешкім алмайды"],
+        aparu:["Жүргізушілер азырақ","Жүргізушілер азырақ","Жүргізушілер аз, ұзақ күтесіз","Жүргізушілер аз, ұзақ күтесіз"],
+        qajet:["Көлік аз, күту ұзағырақ","Көлік табылмауы мүмкін","Көлік табылмауы мүмкін","Көлік табылмауы мүмкін"]},
+      qTitle:"Қосымшадағы нақты бағаны енгізіңіз",qSub:"кемінде екеуін",
+      qHint:"Әр қосымшада бірдей маршрутты енгізіп, көрсетілген бағаны осында жазыңыз. Ең арзанын өзіміз табамыз.",
+      qPick:"таңдаңыз",qCheaper:"арзан",
+      mapHintOn:"Картаны басып, алдымен бастау, сосын баратын нүктені таңдаңыз",
+      mapHintOff:"Толық 2GIS картасы сайттың өзінде ашылады. Мұнда маршрут схемасы көрсетілген.",
+      modeOn:"<b>2GIS қосылған:</b> кез келген мекенжайды іздеуге болады, қашықтық нақты кептеліс бойынша есептеледі.",
+      modeOff:"<b>2GIS қосылмаған:</b> танымал орындарды таңдаңыз немесе қашықтықты қолмен өзгертіңіз.",
+      howTitle:"Баға қалай есептеледі",thCity:"Қала",thBase:"Yandex отырғызу",thKm:"1 км",
+      how:["<b>Yandex Go</b>: әр қаланың «Эконом» отырғызу бағасы мен 1 км бағасы Kazinform деректерінен алынды (Алматы мен Астанада 420 ₸, әрі қарай 1 км үшін 65 ₸-ге дейін). Минут бағасы 12 ₸ деп алынды. Қарбаласта және жаман ауа райында баға автоматты түрде өседі. <b>Uber KZ</b> — Yandex басқаратын жеке қосымша, жүргізушілері ортақ, сондықтан бағасы ұқсас.",
+        "<b>inDrive</b> мен <b>Aparu</b>: бағаны жолаушы ұсынады. Зерттеу бойынша inDrive нарықтан орта есеппен 12%-ға арзан, сондықтан аралық көрсетілген. Сұраныс өссе, жүргізушілер де бағаны көтереді.",
+        "<b>Qajet</b>: 2026 жылғы қазанда іске қосылды, жүргізушілерден комиссия алмайды, үстеме баға әлі жоқ. БАҚ тексеруінде Yandex «Эконом»-нан шамамен 25–38% арзан болды, мұнда 28% деп алынды. Көлік аз.",
+        "Көлік түрлері: Комфорт ≈ +18%, Бизнес (Комфорт+, Сән) ≈ +40%, Минивэн ≈ +60%. Бұл Yandex пен Qajet тарифтерінің арақатынасы бойынша болжам.",
+        "Қашықтық: 2GIS қосылмаса, екі нүкте арасындағы түзу қашықтық × 1,35. 2GIS қосылса, нақты жол мен кептеліс."],
+      sources:"Дереккөздер"
+    },
+    ru:{
+      tagline:"Сравнение цен на такси",from:"Откуда",to:"Куда",swap:"Поменять местами",
+      classLabel:"Тип машины",condLabel:"Сейчас",km:"км",min:"минут в пути",adjust:"Изменить расстояние вручную",
+      src:{manual:"Вручную",est:"По прямой",gis:"Маршрут 2GIS",load:"Запрос к 2GIS…"},
+      open2gis:"Открыть маршрут в 2GIS",
+      cls:{econ:"Эконом",comfort:"Комфорт",business:"Бизнес",minivan:"Минивэн"},
+      cond:{normal:"Обычно",peak:"Час пик",weather:"Дождь, снег",night:"Ночь, праздник"},
+      prices:"Цены",estimate:"оценка",
+      best:"Выгоднее всего",cheapHard:"Дешевле всех, но сейчас трудно найти машину",na:"Нет такого тарифа",
+      bidRange:"предложение",openRoute:"Открыть с маршрутом",copyDest:"Скопировать адрес",copied:"Скопировано",
+      tag:{km:"По км и времени",surge:"Повышающий ×",shared:"Общие водители с Yandex",bid:"Цену предлагаете вы",nosurge:"Без повышающих пока"},
+      wait:{fast:["3–7 мин","5–12 мин","Может быть больше 15 мин","5–15 мин"],
+        indrive:["Если водитель примет","Низкую цену могут не взять","Низкую цену не возьмут","Низкую цену не возьмут"],
+        aparu:["Водителей меньше","Водителей меньше","Мало водителей, долго ждать","Мало водителей, долго ждать"],
+        qajet:["Машин мало, ждать дольше","Машину могут не найти","Машину могут не найти","Машину могут не найти"]},
+      qTitle:"Введите реальные цены из приложений",qSub:"минимум две",
+      qHint:"Введите одинаковый маршрут в каждом приложении и запишите цену сюда. Самую дешёвую найдём сами.",
+      qPick:"выбирайте",qCheaper:"дешевле, чем",
+      mapHintOn:"Нажмите на карту: сначала откуда, потом куда",
+      mapHintOff:"Полная карта 2GIS открывается на самом сайте. Здесь схема маршрута.",
+      modeOn:"<b>2GIS подключён:</b> можно искать любой адрес, расстояние считается с учётом пробок.",
+      modeOff:"<b>2GIS не подключён:</b> выберите популярное место или задайте расстояние вручную.",
+      howTitle:"Как считаются цены",thCity:"Город",thBase:"Посадка Yandex",thKm:"1 км",
+      how:["<b>Yandex Go</b>: посадка и цена за км в тарифе «Эконом» по городам — данные Kazinform (Алматы и Астана: 420 ₸, далее до 65 ₸ за км). Минута — 12 ₸ (оценка). В час пик и в непогоду цена растёт автоматически. <b>Uber KZ</b> — отдельное приложение под управлением Yandex с общими водителями, поэтому цена близкая.",
+        "<b>inDrive</b> и <b>Aparu</b>: цену предлагает пассажир. По исследованию inDrive в среднем на 12% дешевле рынка, поэтому показан диапазон. При высоком спросе водители тоже поднимают цену.",
+        "<b>Qajet</b>: запущен в октябре 2026, без комиссии для водителей и пока без повышающих. В проверке СМИ был примерно на 25–38% дешевле «Эконома» Yandex, здесь взято 28%. Машин мало.",
+        "Типы машин: Комфорт ≈ +18%, Бизнес (Комфорт+, Сән) ≈ +40%, Минивэн ≈ +60% — оценка по соотношению тарифов Yandex и Qajet.",
+        "Расстояние: без 2GIS — прямая между точками × 1,35. С 2GIS — реальный маршрут и пробки."],
+      sources:"Источники"
+    }
+  };
+  var lang="kk";
+  try{var sl=localStorage.getItem("kz-taxi-lang");if(T[sl])lang=sl}catch(e){}
+  function t(){return T[lang]}
+
+  // [kk name, ru name, 2gis slug, yandex boarding ₸, max ₸/km, avg speed km/h, lat, lon]
+  var CITIES=[
+    ["Алматы","Алматы","almaty",420,65,20,43.238,76.946],["Астана","Астана","astana",420,65,24,51.128,71.430],
+    ["Шымкент","Шымкент","shymkent",310,60,26,42.317,69.596],["Қарағанды","Караганда","karaganda",320,70,28,49.806,73.085],
+    ["Ақтөбе","Актобе","aktobe",270,60,28,50.283,57.167],["Атырау","Атырау","atyrau",320,57,26,47.106,51.920],
+    ["Павлодар","Павлодар","pavlodar",290,64,28,52.287,76.967],["Өскемен","Усть-Каменогорск","ustkam",370,73,26,49.948,82.628],
+    ["Тараз","Тараз","taraz",220,60,28,42.900,71.367],["Орал","Уральск","uralsk",300,64,28,51.233,51.367],
+    ["Семей","Семей","semey",300,65,28,50.411,80.227],["Қызылорда","Кызылорда","kyzylorda",240,60,28,44.853,65.509],
+    ["Түркістан","Туркестан","turkestan",240,55,28,43.297,68.252],["Көкшетау","Кокшетау","kokshetau",350,58,28,53.283,69.383],
+    ["Талдықорған","Талдыкорган","taldykorgan",285,64,28,45.017,78.383],["Петропавл","Петропавловск","petropavlovsk",280,70,28,54.867,69.150],
+    ["Екібастұз","Экибастуз","ekibastuz",240,65,30,51.729,75.322],["Жезқазған","Жезказган","zhezkazgan",370,50,30,47.783,67.767]
   ];
-  // built-in places (approximate coordinates) used when 2GIS isn't connected
-  var PLACES = {
-    almaty:[
-      ["阿拉木图机场 Аэропорт","plane",43.3521,77.0405],["阿拉木图-2 火车站 Алматы-2","train",43.2716,76.9389],
-      ["阿拉木图-1 火车站 Алматы-1","train",43.3420,76.9500],["Mega Alma-Ata","bag",43.2017,76.8920],
-      ["Dostyk Plaza","bag",43.2333,76.9566],["Esentai Mall","bag",43.2185,76.9280],
-      ["绿色巴扎 Зелёный базар","bag",43.2618,76.9550],["共和国广场 Площадь Республики","pin",43.2381,76.9454],
-      ["阿拜歌剧院 ГАТОБ им. Абая","pin",43.2423,76.9433],["哈萨克国立大学 КазНУ","pin",43.2253,76.9230],
-      ["麦迪奥 Медеу","mount",43.1575,77.0587]
-    ],
-    astana:[
-      ["阿斯塔纳机场 Аэропорт","plane",51.0222,71.4669],["Nurly Zhol 火车站","train",51.1132,71.5310],
-      ["阿斯塔纳-1 火车站","train",51.1940,71.4100],["巴伊杰列克塔 Байтерек","pin",51.1283,71.4305],
-      ["可汗之帐 Хан Шатыр","bag",51.1325,71.4036],["Mega Silk Way","bag",51.0894,71.4065],
-      ["纳扎尔巴耶夫大学 NU","pin",51.0907,71.3984],["阿斯塔纳体育场 Astana Arena","pin",51.1081,71.4027]
-    ],
-    shymkent:[
-      ["奇姆肯特机场 Аэропорт","plane",42.3642,69.4789],["Mega Planet","bag",42.3190,69.5950],
-      ["市中心 Центр","pin",42.3170,69.5960]
-    ]
+  // [kk, ru, icon, lat, lon] — approximate coordinates
+  var PLACES={
+    almaty:[["Алматы әуежайы","Аэропорт Алматы","plane",43.3521,77.0405],["Алматы-2 вокзалы","Вокзал Алматы-2","train",43.2716,76.9389],
+      ["Алматы-1 вокзалы","Вокзал Алматы-1","train",43.3420,76.9500],["Mega Alma-Ata","Mega Alma-Ata","bag",43.2017,76.8920],
+      ["Dostyk Plaza","Dostyk Plaza","bag",43.2333,76.9566],["Esentai Mall","Esentai Mall","bag",43.2185,76.9280],
+      ["Көк базар","Зелёный базар","bag",43.2618,76.9550],["Республика алаңы","Площадь Республики","pin",43.2381,76.9454],
+      ["Абай атындағы опера театры","Театр оперы и балета им. Абая","pin",43.2423,76.9433],["ҚазҰУ","КазНУ","pin",43.2253,76.9230],
+      ["Медеу","Медеу","mount",43.1575,77.0587]],
+    astana:[["Астана әуежайы","Аэропорт Астаны","plane",51.0222,71.4669],["Нұрлы жол вокзалы","Вокзал Нурлы жол","train",51.1132,71.5310],
+      ["Астана-1 вокзалы","Вокзал Астана-1","train",51.1940,71.4100],["Бәйтерек","Байтерек","pin",51.1283,71.4305],
+      ["Хан Шатыр","Хан Шатыр","bag",51.1325,71.4036],["Mega Silk Way","Mega Silk Way","bag",51.0894,71.4065],
+      ["Назарбаев Университеті","Назарбаев Университет","pin",51.0907,71.3984],["Астана Арена","Астана Арена","pin",51.1081,71.4027]],
+    shymkent:[["Шымкент әуежайы","Аэропорт Шымкента","plane",42.3642,69.4789],["Mega Planet","Mega Planet","bag",42.3190,69.5950],
+      ["Қала орталығы","Центр города","pin",42.3170,69.5960]]
   };
 
-  var PER_MIN = 12;
-  var SURGE = {normal:1, peak:1.4, weather:1.8, night:2};
-  var BID = {normal:1, peak:1.25, weather:1.6, night:1.8};
-  var COND_NAME = {normal:"平时",peak:"高峰",weather:"雨雪天",night:"深夜/节日"};
+  var PER_MIN=12;
+  var CONDS=["normal","peak","weather","night"], CICON={normal:"sun",peak:"jam",weather:"rain",night:"moon"};
+  var SURGE={normal:1,peak:1.4,weather:1.8,night:2}, BID={normal:1,peak:1.25,weather:1.6,night:1.8};
+  var CLASSES=["econ","comfort","business","minivan"], KICON={econ:"car",comfort:"sofa",business:"star",minivan:"van"};
+  var CMULT={econ:1,comfort:1.18,business:1.4,minivan:1.6};
+  var YCLASS={econ:"econom",comfort:"business",business:"comfortplus",minivan:"minivan"};
 
   // icon colors are this page's own palette, not the companies' brand colors
-  var APPS = [
-    {id:"yandex",name:"Yandex Go",mono:"Y",col:"#2f3b45",
+  var APPS=[
+    {id:"yandex",name:"Yandex Go",mono:"Y",col:"#2f3b45",tn:{econ:"Эконом",comfort:"Комфорт",business:"Комфорт+",minivan:"Минивэн"},
       play:"https://play.google.com/store/apps/details?id=ru.yandex.taxi",ios:"https://apps.apple.com/kz/app/id472650686"},
-    {id:"uber",name:"Uber KZ",mono:"U",col:"#55626c",
+    {id:"uber",name:"Uber KZ",mono:"U",col:"#55626c",tn:{econ:"Эконом",comfort:"Комфорт",business:"Комфорт+",minivan:"Минивэн"},
       play:"https://play.google.com/store/apps/details?id=ru.yandex.uber_kz",ios:"https://apps.apple.com/kz/app/id1447876124"},
-    {id:"indrive",name:"inDrive",mono:"iD",col:"#3f7d5c",
+    {id:"indrive",name:"inDrive",mono:"iD",col:"#3f7d5c",tn:{econ:"Эконом",comfort:"Комфорт"},
       play:"https://play.google.com/store/apps/details?id=sinet.startup.inDriver",ios:"https://apps.apple.com/kz/app/id780125801"},
-    {id:"aparu",name:"Aparu",mono:"A",col:"#8a5a2b",
+    {id:"aparu",name:"Aparu",mono:"A",col:"#8a5a2b",tn:{econ:"Эконом",comfort:"Комфорт"},
       play:"https://play.google.com/store/search?q=aparu&c=apps",ios:"https://apps.apple.com/kz/app/id997499904"},
-    {id:"qajet",name:"Qajet Taxi",mono:"Q",col:"#1f6fa8",
+    {id:"qajet",name:"Qajet",mono:"Q",col:"#1f6fa8",tn:{econ:"Жай такси",comfort:"Жайлы такси",business:"Сән такси"},
       play:"https://play.google.com/store/apps/details?id=com.jambyylf.aultaxi2",ios:"https://apps.apple.com/kz/app/qajet-taxi/id6786571870"}
   ];
 
   var $=function(id){return document.getElementById(id)};
-  var state={city:0,from:null,to:null,km:8,min:24,routeSrc:"manual",cond:"normal"};
-
-  // ---------- setup ----------
-  CITIES.forEach(function(c,i){
-    var o=document.createElement("option");o.value=i;o.textContent=c[0];$("city").appendChild(o);
-    var tr=document.createElement("tr");tr.innerHTML="<td>"+c[0]+"</td><td class='n'>"+c[2]+" ₸</td><td class='n'>"+c[3]+" ₸</td>";$("tbl").appendChild(tr);
-  });
-  try{var sv=localStorage.getItem("kz-taxi-city");if(sv!==null&&CITIES[sv])state.city=+sv;}catch(e){}
-  $("city").value=state.city;
+  var state={city:0,from:null,to:null,km:8,min:24,src:"manual",cond:"normal",cls:"econ",geom:null};
+  try{var sv=localStorage.getItem("kz-taxi-city");if(sv!==null&&CITIES[sv])state.city=+sv}catch(e){}
 
   function city(){return CITIES[state.city]}
-  function places(){return PLACES[city()[1]]||[]}
+  function L(pair){return lang==="ru"?pair[1]:pair[0]}
+  function places(){return PLACES[city()[2]]||[]}
   function icon(n){return "<svg class='i'><use href='#i-"+n+"'/></svg>"}
   function money(n){return (Math.round(n/10)*10).toLocaleString("ru-RU")+" ₸"}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 
-  // ---------- distance ----------
+  // ---------- static texts ----------
+  function applyLang(){
+    document.documentElement.lang=lang==="ru"?"ru":"kk";
+    document.querySelectorAll("[data-t]").forEach(function(el){var v=t()[el.dataset.t];if(typeof v==="string")el.textContent=v});
+    $("from").placeholder=t().from;$("to").placeholder=t().to;$("swap").setAttribute("aria-label",t().swap);
+    document.querySelectorAll(".lang button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.l===lang?"true":"false")});
+    var sel=$("city");sel.innerHTML="";
+    CITIES.forEach(function(c,i){var o=document.createElement("option");o.value=i;o.textContent=L(c);sel.appendChild(o)});
+    sel.value=state.city;
+    var tb=$("tbl");tb.innerHTML="";
+    CITIES.forEach(function(c){var tr=document.createElement("tr");tr.innerHTML="<td>"+L(c)+"</td><td class='n'>"+c[3]+" ₸</td><td class='n'>"+c[4]+" ₸</td>";tb.appendChild(tr)});
+    $("howBody").innerHTML=t().how.map(function(p){return "<p>"+p+"</p>"}).join("");
+    var s=document.querySelector("[data-t=sources]");
+    s.innerHTML=t().sources+": <a href='https://www.inform.kz/ru/skolko-stoit-poezdka-na-taksi-v-gorodah-kazahstana-01fe08' target='_blank' rel='noopener'>Kazinform</a> · <a href='https://centralmedia24.kz/v-kazahstane-zapustili-otechestvennoe-taksi-qajet-na-kazahskom-yazyke/' target='_blank' rel='noopener'>Centralmedia24</a> · <a href='https://informburo.kz/novosti/indrive-samyi-vygodnyi-servis-taksi-v-kazaxstane-po-rezultatam-nezavisimogo-issledovaniia' target='_blank' rel='noopener'>Informburo</a> · <a href='https://docs.2gis.com/en/api/navigation/routing/start' target='_blank' rel='noopener'>2GIS</a>";
+    $("mode").querySelector("span").innerHTML=DGIS_KEY?t().modeOn:t().modeOff;
+    $("maphint").querySelector("span").textContent=mapReady?t().mapHintOn:t().mapHintOff;
+    buildSeg("cls",CLASSES,KICON,t().cls,"cls");
+    buildSeg("cond",CONDS,CICON,t().cond,"cond");
+    // keep place names in the chosen language
+    ["from","to"].forEach(function(w){var p=state[w];if(p&&p.pair){p.name=L(p.pair);$(w).value=p.name}});
+    renderQuick();buildQuotes();render();
+  }
+  function buildSeg(id,keys,icons,names,key){
+    var box=$(id);box.innerHTML="";
+    keys.forEach(function(k){
+      var b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",state[key]===k?"true":"false");
+      b.innerHTML=icon(icons[k])+names[k];
+      b.addEventListener("click",function(){state[key]=k;box.querySelectorAll("button").forEach(function(o){o.setAttribute("aria-pressed",o===b?"true":"false")});render()});
+      box.appendChild(b);
+    });
+  }
+
+  // ---------- distance & route ----------
   function hav(a,b){
-    var R=6371,toR=Math.PI/180,dLa=(b.lat-a.lat)*toR,dLo=(b.lon-a.lon)*toR;
-    var h=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a.lat*toR)*Math.cos(b.lat*toR)*Math.sin(dLo/2)*Math.sin(dLo/2);
+    var R=6371,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lon-a.lon)*r;
+    var h=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)*Math.sin(dLo/2);
     return 2*R*Math.asin(Math.sqrt(h));
   }
-  function minutesFor(km){return Math.max(3,Math.round(km/city()[4]*60)+3)}
+  function minutesFor(km){return Math.max(3,Math.round(km/city()[5]*60)+3)}
+  function estRoute(){var d=Math.max(1,hav(state.from,state.to)*1.35);state.km=Math.round(d*2)/2;state.min=minutesFor(state.km);state.src="est";state.geom=null}
 
   function updateRoute(){
     if(state.from&&state.to){
       if(DGIS_KEY){routeVia2gis();return}
-      var d=Math.max(1,hav(state.from,state.to)*1.35);
-      state.km=Math.round(d*2)/2; state.min=minutesFor(state.km); state.routeSrc="est";
-    }
-    render();
+      estRoute();
+    } else state.geom=null;
+    render();drawMap();
   }
-
   function routeVia2gis(){
-    $("srcnote").textContent="正在向 2GIS 查询路线…";
+    $("srcnote").textContent=t().src.load;
     fetch("https://routing.api.2gis.com/routing/7.0.0/global?key="+encodeURIComponent(DGIS_KEY),{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({points:[{type:"stop",lon:state.from.lon,lat:state.from.lat},{type:"stop",lon:state.to.lon,lat:state.to.lat}],
         transport:"driving",route_mode:"fastest",traffic_mode:"jam"})
     }).then(function(r){return r.json()}).then(function(j){
-      var r=j&&j.result&&j.result[0]; if(!r) throw new Error("no route");
-      state.km=Math.round(r.total_distance/100)/10; state.min=Math.max(1,Math.round(r.total_duration/60)); state.routeSrc="2gis";
-      render();
-    }).catch(function(){
-      var d=Math.max(1,hav(state.from,state.to)*1.35);
-      state.km=Math.round(d*2)/2; state.min=minutesFor(state.km); state.routeSrc="est"; render();
-    });
+      var r=j&&j.result&&j.result[0];if(!r)throw new Error("no route");
+      state.km=Math.round(r.total_distance/100)/10;state.min=Math.max(1,Math.round(r.total_duration/60));state.src="gis";
+      var pts=[];
+      (r.maneuvers||[]).forEach(function(m){
+        var g=m.outcoming_path&&m.outcoming_path.geometry;
+        (g||[]).forEach(function(seg){
+          var mm=/LINESTRING\s*\((.*)\)/i.exec(seg.selection||"");
+          if(mm) mm[1].split(",").forEach(function(p){var xy=p.trim().split(/\s+/);pts.push([+xy[0],+xy[1]])});
+        });
+      });
+      state.geom=pts.length>1?pts:null;
+      render();drawMap();
+    }).catch(function(){estRoute();render();drawMap()});
+  }
+
+  // ---------- map ----------
+  var map=null,mapReady=false,mk=[],line=null;
+  function initMap(){
+    if(!DGIS_KEY){drawMap();return}
+    var s=document.createElement("script");s.src="https://mapgl.2gis.com/api/js/v1";
+    s.onload=function(){
+      try{
+        $("schem").remove();
+        var c=city();
+        map=new mapgl.Map("map",{center:[c[7],c[6]],zoom:11,key:DGIS_KEY});
+        mapReady=true;$("maphint").querySelector("span").textContent=t().mapHintOn;
+        map.on("click",function(e){
+          var lon=e.lngLat[0],lat=e.lngLat[1],which=!state.from||(state.from&&state.to)?(!state.from?"from":"to"):"to";
+          if(state.from&&!state.to)which="to";
+          reverse(lon,lat,function(name){pick(which,{name:name,lat:lat,lon:lon})});
+        });
+        drawMap();
+      }catch(err){mapReady=false;drawMap()}
+    };
+    s.onerror=function(){drawMap()};
+    document.head.appendChild(s);
+  }
+  function reverse(lon,lat,cb){
+    var fallback=lat.toFixed(4)+", "+lon.toFixed(4);
+    fetch("https://catalog.api.2gis.com/3.0/items/geocode?lon="+lon+"&lat="+lat+"&fields=items.point&key="+encodeURIComponent(DGIS_KEY))
+      .then(function(r){return r.json()}).then(function(j){var it=j.result&&j.result.items&&j.result.items[0];cb(it?(it.full_name||it.name||fallback):fallback)})
+      .catch(function(){cb(fallback)});
+  }
+  function drawMap(){
+    if(mapReady&&map){
+      mk.forEach(function(m){m.destroy()});mk=[];if(line){line.destroy();line=null}
+      [["from","A"],["to","B"]].forEach(function(p){var s=state[p[0]];if(s)mk.push(new mapgl.Marker(map,{coordinates:[s.lon,s.lat],label:{text:p[1]}}))});
+      if(state.from&&state.to){
+        var coords=state.geom||[[state.from.lon,state.from.lat],[state.to.lon,state.to.lat]];
+        line=new mapgl.Polyline(map,{coordinates:coords,width:6,color:getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#0b6fb8"});
+        var lo=coords.map(function(c){return c[0]}),la=coords.map(function(c){return c[1]});
+        try{map.fitBounds({southWest:[Math.min.apply(null,lo),Math.min.apply(null,la)],northEast:[Math.max.apply(null,lo),Math.max.apply(null,la)]},{padding:{top:40,bottom:70,left:40,right:40}})}catch(e){}
+      }
+      return;
+    }
+    // schematic fallback: A→B drawn to scale on a grid
+    var svg=$("schem");if(!svg)return;
+    var W=svg.clientWidth||400,H=svg.clientHeight||280;
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
+    var g="";for(var x=0;x<W;x+=28)g+="<line x1='"+x+"' y1='0' x2='"+x+"' y2='"+H+"' stroke='var(--map-b)' stroke-width='1'/>";
+    for(var y=0;y<H;y+=28)g+="<line x1='0' y1='"+y+"' x2='"+W+"' y2='"+y+"' stroke='var(--map-b)' stroke-width='1'/>";
+    var body="<rect width='"+W+"' height='"+H+"' fill='var(--map-a)'/>"+g;
+    if(state.from&&state.to){
+      var a=state.from,b=state.to,pad=50,minLo=Math.min(a.lon,b.lon),maxLo=Math.max(a.lon,b.lon),minLa=Math.min(a.lat,b.lat),maxLa=Math.max(a.lat,b.lat);
+      var k=Math.cos(((a.lat+b.lat)/2)*Math.PI/180),sw=(maxLo-minLo)*k||1e-4,sh=(maxLa-minLa)||1e-4;
+      var sc=Math.min((W-2*pad)/sw,(H-2*pad-30)/sh),ox=(W-sw*sc)/2,oy=(H-30-sh*sc)/2;
+      var P=function(p){return [ox+(p.lon-minLo)*k*sc, oy+(maxLa-p.lat)*sc]};
+      var pa=P(a),pb=P(b),mx=(pa[0]+pb[0])/2+(pb[1]-pa[1])*.15,my=(pa[1]+pb[1])/2-(pb[0]-pa[0])*.15;
+      body+="<path d='M"+pa[0]+","+pa[1]+" Q"+mx+","+my+" "+pb[0]+","+pb[1]+"' stroke='var(--accent)' stroke-width='5' fill='none' stroke-linecap='round'/>"+
+        "<circle cx='"+pa[0]+"' cy='"+pa[1]+"' r='9' fill='var(--ink)'/><text x='"+pa[0]+"' y='"+(pa[1]+4)+"' text-anchor='middle' font-size='11' font-weight='700' fill='var(--bg)'>A</text>"+
+        "<rect x='"+(pb[0]-9)+"' y='"+(pb[1]-9)+"' width='18' height='18' rx='4' fill='var(--accent)'/><text x='"+pb[0]+"' y='"+(pb[1]+4)+"' text-anchor='middle' font-size='11' font-weight='700' fill='var(--accent-ink)'>B</text>";
+    }
+    svg.innerHTML=body;
   }
 
   // ---------- place search ----------
+  function local(q){
+    q=q.trim().toLowerCase();
+    return places().filter(function(p){return !q||p[0].toLowerCase().indexOf(q)>-1||p[1].toLowerCase().indexOf(q)>-1})
+      .map(function(p){return {name:L(p),pair:[p[0],p[1]],ic:p[2],lat:p[3],lon:p[4]}});
+  }
   function setupInput(which){
-    var inp=$(which), box=$("s-"+which), timer=null;
+    var inp=$(which),box=$("s-"+which),timer=null;
     function show(items){
       if(!items.length){box.hidden=true;return}
       box.innerHTML="";
       items.slice(0,8).forEach(function(p){
         var b=document.createElement("button");b.type="button";
-        b.innerHTML=icon(p.ic||"pin")+"<span>"+p.name+(p.sub?"<small>"+p.sub+"</small>":"")+"</span>";
+        b.innerHTML=icon(p.ic||"pin")+"<span>"+esc(p.name)+(p.sub?"<small>"+esc(p.sub)+"</small>":"")+"</span>";
         b.addEventListener("mousedown",function(ev){ev.preventDefault();pick(which,p)});
         box.appendChild(b);
       });
       box.hidden=false;
     }
-    function local(q){
-      q=q.trim().toLowerCase();
-      return places().filter(function(p){return !q||p[0].toLowerCase().indexOf(q)>-1})
-        .map(function(p){return {name:p[0],ic:p[1],lat:p[2],lon:p[3]}});
-    }
     function search(){
       var q=inp.value;
       if(DGIS_KEY&&q.trim().length>1){
         var c=city();
-        fetch("https://catalog.api.2gis.com/3.0/suggests?q="+encodeURIComponent(q)+"&location="+c[6]+","+c[5]+"&fields=items.point,items.address_name&key="+encodeURIComponent(DGIS_KEY))
+        fetch("https://catalog.api.2gis.com/3.0/suggests?q="+encodeURIComponent(q)+"&location="+c[7]+","+c[6]+"&locale="+(lang==="ru"?"ru_KZ":"kk_KZ")+"&fields=items.point,items.address_name&key="+encodeURIComponent(DGIS_KEY))
           .then(function(r){return r.json()}).then(function(j){
             var items=((j.result&&j.result.items)||[]).filter(function(x){return x.point}).map(function(x){
               return {name:x.name||x.full_name,sub:x.address_name||"",lat:x.point.lat,lon:x.point.lon}});
@@ -349,140 +526,133 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
     inp.addEventListener("blur",function(){setTimeout(function(){box.hidden=true},120)});
   }
   function pick(which,p){
-    state[which]={name:p.name,lat:p.lat,lon:p.lon};
-    $(which).value=p.name; $("s-"+which).hidden=true;
-    if(which==="from"&&!state.to) $("to").focus();
+    state[which]={name:p.name,pair:p.pair||null,lat:p.lat,lon:p.lon};
+    $(which).value=p.name;$("s-"+which).hidden=true;
     updateRoute();
   }
   setupInput("from");setupInput("to");
-
   $("swap").addEventListener("click",function(){
     var f=state.from;state.from=state.to;state.to=f;
-    $("from").value=state.from?state.from.name:"";$("to").value=state.to?state.to.name:"";
-    updateRoute();
+    $("from").value=state.from?state.from.name:"";$("to").value=state.to?state.to.name:"";updateRoute();
   });
-
   function renderQuick(){
     var q=$("quick");q.innerHTML="";
     places().slice(0,4).forEach(function(p){
       var b=document.createElement("button");b.className="qp";b.type="button";
-      b.innerHTML=icon(p[1])+p[0].split(" ")[0];
-      b.addEventListener("click",function(){pick(state.from?"to":"from",{name:p[0],lat:p[2],lon:p[3]})});
+      b.innerHTML=icon(p[2])+esc(L(p));
+      b.addEventListener("click",function(){pick(state.from&&!state.to?"to":(state.from?"to":"from"),{name:L(p),pair:[p[0],p[1]],lat:p[3],lon:p[4]})});
       q.appendChild(b);
     });
   }
-
-  $("km").addEventListener("input",function(){state.km=+this.value;state.min=minutesFor(state.km);state.routeSrc="manual";render()});
+  $("km").addEventListener("input",function(){state.km=+this.value;state.min=minutesFor(state.km);state.src="manual";render()});
   $("city").addEventListener("change",function(){
     state.city=+this.value;try{localStorage.setItem("kz-taxi-city",this.value)}catch(e){}
-    state.from=state.to=null;$("from").value=$("to").value="";
-    state.km=8;state.min=minutesFor(8);state.routeSrc="manual";renderQuick();render();
+    state.from=state.to=null;state.geom=null;$("from").value=$("to").value="";
+    state.km=8;state.min=minutesFor(8);state.src="manual";
+    if(map){var c=city();map.setCenter([c[7],c[6]]);map.setZoom(11)}
+    renderQuick();render();drawMap();
   });
-  document.querySelectorAll("#cond button").forEach(function(b){
-    b.addEventListener("click",function(){
-      state.cond=b.dataset.c;
-      document.querySelectorAll("#cond button").forEach(function(o){o.setAttribute("aria-pressed",o===b?"true":"false")});
-      render();
-    });
-  });
+  document.querySelectorAll(".lang button").forEach(function(b){b.addEventListener("click",function(){lang=b.dataset.l;try{localStorage.setItem("kz-taxi-lang",lang)}catch(e){}applyLang()})});
 
   // ---------- pricing ----------
   function prices(){
-    var c=city(), base=Math.max(c[2], c[2]+c[3]*state.km+PER_MIN*state.min), k=state.cond;
-    var y=base*SURGE[k], ind=base*0.88*BID[k], ap=base*0.92*BID[k];
-    var bad=k==="weather"||k==="night";
+    var c=city(),k=state.cond,m=CMULT[state.cls],ci=CONDS.indexOf(k),bad=k==="weather"||k==="night";
+    var base=Math.max(c[3],c[3]+c[4]*state.km+PER_MIN*state.min)*m;
+    var y=base*SURGE[k],ind=base*.88*BID[k],ap=base*.92*BID[k],w=t().wait,tg=t().tag;
     return {
-      yandex:{lo:y,hi:y,tag:k==="normal"?"按里程计价":"自动加价 ×"+SURGE[k],wait:{normal:"3–7 分钟",peak:"5–12 分钟",weather:"可能 15 分钟以上",night:"5–15 分钟"}[k]},
-      uber:{lo:y,hi:y*1.03,tag:"与 Yandex 共用车队",wait:{normal:"3–7 分钟",peak:"5–12 分钟",weather:"可能 15 分钟以上",night:"5–15 分钟"}[k]},
-      indrive:{lo:ind*0.9,hi:ind*1.1,tag:"可自己出价",bid:true,wait:bad?"出价低基本没人接":k==="peak"?"出价低可能没人接":"看司机接不接",risk:bad},
-      aparu:{lo:ap*0.9,hi:ap*1.1,tag:"可自己出价",bid:true,wait:bad?"司机较少，可能等很久":"司机比大平台少",risk:bad},
-      qajet:{lo:base*0.72,hi:base*0.72,tag:"暂无动态加价",wait:k==="normal"?"车少，可能要多等":"很可能叫不到车",risk:k!=="normal"}
+      yandex:{lo:y,hi:y,tag:k==="normal"?tg.km:tg.surge+SURGE[k],wait:w.fast[ci]},
+      uber:{lo:y,hi:y*1.03,tag:tg.shared,wait:w.fast[ci]},
+      indrive:{lo:ind*.9,hi:ind*1.1,bid:true,tag:tg.bid,wait:w.indrive[ci],risk:bad},
+      aparu:{lo:ap*.9,hi:ap*1.1,bid:true,tag:tg.bid,wait:w.aparu[ci],risk:bad},
+      qajet:{lo:base*.72,hi:base*.72,tag:tg.nosurge,wait:w.qajet[ci],risk:k!=="normal"}
     };
   }
-
   function deepLink(a){
-    // Yandex Go official route link (opens the app with the route filled in; falls back to the app store)
     if(a.id==="yandex"&&state.from&&state.to){
       return "https://3.redirect.appmetrica.yandex.com/route?start-lat="+state.from.lat+"&start-lon="+state.from.lon+
-        "&end-lat="+state.to.lat+"&end-lon="+state.to.lon+"&tariffClass=econom&ref=salystyr&lang=ru&appmetrica_tracking_id=1178268795219780156";
+        "&end-lat="+state.to.lat+"&end-lon="+state.to.lon+"&tariffClass="+YCLASS[state.cls]+"&ref=salystyr&lang="+(lang==="ru"?"ru":"kk")+"&appmetrica_tracking_id=1178268795219780156";
     }
     return null;
   }
   function copyDest(btn){
-    if(!state.to) return;
-    var t=state.to.name, done=function(){btn.textContent="已复制目的地";setTimeout(function(){btn.textContent="复制目的地"},1500)};
-    var fail=function(){btn.textContent=t;btn.style.userSelect="all"};
-    try{navigator.clipboard.writeText(t).then(done,fail)}catch(e){fail()}
+    if(!state.to)return;
+    var txt=state.to.name,lab=btn.querySelector("span");
+    var done=function(){lab.textContent=t().copied;setTimeout(function(){lab.textContent=t().copyDest},1500)};
+    var fail=function(){lab.textContent=txt;btn.style.userSelect="all"};
+    try{navigator.clipboard.writeText(txt).then(done,fail)}catch(e){fail()}
   }
 
   function render(){
-    $("kmv").textContent=state.km.toLocaleString("ru-RU");
-    $("minv").textContent=state.min;
+    $("kmv").textContent=state.km.toLocaleString("ru-RU");$("minv").textContent=state.min;
     $("km").value=Math.min(60,state.km);
-    $("srcnote").textContent={manual:"手动设置",est:"按两点直线距离估算",
-      "2gis":"2GIS 实时路线"}[state.routeSrc];
-    // 2GIS link
-    var c=city(), ml=$("maplink");
-    if(state.from&&state.to){
-      ml.href="https://2gis.kz/"+c[1]+"/directions/points/"+state.from.lon+"%2C"+state.from.lat+"%7C"+state.to.lon+"%2C"+state.to.lat;
-      ml.hidden=false;
-    } else ml.hidden=true;
-    $("rtitle").textContent=(state.from&&state.to)?state.from.name.split(" ")[0]+" → "+state.to.name.split(" ")[0]:"各家价格";
+    $("srcnote").textContent=t().src[state.src];
+    var c=city(),ml=$("maplink");
+    if(state.from&&state.to){ml.href="https://2gis.kz/"+c[2]+"/directions/points/"+state.from.lon+"%2C"+state.from.lat+"%7C"+state.to.lon+"%2C"+state.to.lat;ml.hidden=false}
+    else ml.hidden=true;
+    $("rtitle").textContent=(state.from&&state.to)?short(state.from.name)+" → "+short(state.to.name):t().prices;
+    $("rsub").textContent=t().cls[state.cls]+" · "+t().estimate;
 
     var p=prices();
-    var rows=APPS.map(function(a){var r=p[a.id];return {a:a,r:r,mid:(r.lo+r.hi)/2}}).sort(function(x,y){return x.mid-y.mid});
-    // the cheapest app that is realistically available right now
-    var bestIdx=0; while(bestIdx<rows.length-1&&rows[bestIdx].r.risk) bestIdx++;
+    var avail=[],na=[];
+    APPS.forEach(function(a){var r=p[a.id],o={a:a,r:r,mid:(r.lo+r.hi)/2};(a.tn[state.cls]?avail:na).push(o)});
+    avail.sort(function(x,y){return x.mid-y.mid});
+    var bi=0;while(bi<avail.length-1&&avail[bi].r.risk)bi++;
     var box=$("apps");box.innerHTML="";
-    rows.forEach(function(x,i){
-      var r=x.r,a=x.a,best=i===bestIdx,cheapest=i===0;
-      var priceTxt=r.bid?money(r.lo)+"<small> 起，最高约 "+money(r.hi)+"</small>":money(r.lo);
-      var diff=x.mid-rows[bestIdx].mid;
-      var link=deepLink(a);
+    avail.forEach(function(x,i){
+      var r=x.r,a=x.a,best=i===bi,cheap=i===0&&!best,link=deepLink(a),diff=x.mid-avail[bi].mid;
       var el=document.createElement("div");el.className="app"+(best?" best":"");
-      el.innerHTML=
-        "<div class='ic' style='background:"+a.col+"'>"+a.mono+"</div>"+
-        "<div class='nm'>"+a.name+(best?"<span class='pill'>推荐 · 最划算</span>":"")+
-          (cheapest&&!best?"<span class='pill warn'>最便宜但现在难叫车</span>":"")+"</div>"+
-        "<div class='pr'><b>"+(r.bid?money(r.lo):money(r.lo))+"</b><small>"+
-          (r.bid?"出价区间 – "+money(r.hi):(best?COND_NAME[state.cond]:(diff>0?"+"+money(diff):"")))+"</small></div>"+
+      el.innerHTML="<div class='ic' style='background:"+a.col+"'>"+a.mono+"</div>"+
+        "<div class='nm'>"+a.name+" <span class='tn'>"+a.tn[state.cls]+"</span>"+(best?"<span class='pill'>"+t().best+"</span>":"")+(cheap?"<span class='pill warn'>"+t().cheapHard+"</span>":"")+"</div>"+
+        "<div class='pr'><b>"+money(r.lo)+"</b><small>"+(r.bid?t().bidRange+" – "+money(r.hi):(diff>5?"+"+money(diff):"&nbsp;"))+"</small></div>"+
         "<div class='ds'><span class='w'"+(r.risk?" style='color:var(--warn)'":"")+">"+icon("clock")+r.wait+"</span><span>"+r.tag+"</span></div>"+
-        "<div class='go'>"+(link?"<a class='btn pri' href='"+link+"' target='_blank' rel='noopener'>"+icon("ext")+"带路线打开 "+a.name+"</a>":
-            (state.to?"<button type='button' class='btn copy'>"+icon("pin")+"复制目的地</button>":""))+
+        "<div class='go'>"+(link?"<a class='btn pri' href='"+link+"' target='_blank' rel='noopener'>"+icon("ext")+t().openRoute+"</a>":
+          (state.to?"<button type='button' class='btn copy'>"+icon("copy")+"<span>"+t().copyDest+"</span></button>":""))+
           "<a class='btn' href='"+a.play+"' target='_blank' rel='noopener'>"+icon("ext")+"Android</a>"+
           "<a class='btn' href='"+a.ios+"' target='_blank' rel='noopener'>"+icon("ext")+"iPhone</a></div>";
-      var cb=el.querySelector(".copy"); if(cb) cb.addEventListener("click",function(){copyDest(cb)});
+      var cb=el.querySelector(".copy");if(cb)cb.addEventListener("click",function(){copyDest(cb)});
+      box.appendChild(el);
+    });
+    na.forEach(function(x){
+      var el=document.createElement("div");el.className="app na";
+      el.innerHTML="<div class='ic' style='background:"+x.a.col+"'>"+x.a.mono+"</div><div class='nm'>"+x.a.name+"</div><div class='pr'><small>"+t().na+"</small></div><div class='ds'></div>";
       box.appendChild(el);
     });
   }
+  function short(s){return s.length>22?s.slice(0,21)+"…":s}
 
   // ---------- real quotes ----------
-  APPS.forEach(function(a){
-    var l=document.createElement("label");
-    l.innerHTML=a.name+"<input type='number' inputmode='numeric' id='q-"+a.id+"' placeholder='₸'>";
-    $("qgrid").appendChild(l);
-    l.querySelector("input").addEventListener("input",quotes);
-  });
+  function buildQuotes(){
+    var g=$("qgrid"),old={};
+    APPS.forEach(function(a){var i=$("q-"+a.id);if(i)old[a.id]=i.value});
+    g.innerHTML="";
+    APPS.forEach(function(a){
+      var l=document.createElement("label");
+      l.innerHTML=a.name+"<input type='number' inputmode='numeric' id='q-"+a.id+"' placeholder='₸'>";
+      g.appendChild(l);var inp=l.querySelector("input");inp.value=old[a.id]||"";inp.addEventListener("input",quotes);
+    });
+    quotes();
+  }
   function quotes(){
     var v=APPS.map(function(a){return {n:a.name,v:parseFloat($("q-"+a.id).value)}}).filter(function(x){return x.v>0}).sort(function(a,b){return a.v-b.v});
     var o=$("qout");
-    if(v.length<2){o.innerHTML="<span style='color:var(--sub);font-size:13px'>在各 App 输入同一个起点终点，把看到的价格填进来，自动排出最便宜的。</span>";return}
-    var b=v[0],w=v[v.length-1];
-    o.innerHTML="选 <b>"+b.n+"</b>，"+b.v.toLocaleString("ru-RU")+" ₸，比 "+w.n+" 省 "+(w.v-b.v).toLocaleString("ru-RU")+" ₸（"+Math.round((w.v-b.v)/w.v*100)+"%）";
+    if(v.length<2){o.innerHTML="<span class='qhint'>"+t().qHint+"</span>";return}
+    var b=v[0],w=v[v.length-1],f=function(n){return n.toLocaleString("ru-RU")};
+    o.innerHTML=lang==="ru"
+      ?"<b>"+b.n+"</b> — "+t().qPick+": "+f(b.v)+" ₸. На "+f(w.v-b.v)+" ₸ ("+Math.round((w.v-b.v)/w.v*100)+"%) "+t().qCheaper+" "+w.n+"."
+      :"<b>"+b.n+"</b> "+t().qPick+": "+f(b.v)+" ₸. "+w.n+"-дан "+f(w.v-b.v)+" ₸ ("+Math.round((w.v-b.v)/w.v*100)+"%) "+t().qCheaper+".";
   }
-  quotes();
-
-  // ---------- mode banner ----------
-  $("mode").querySelector("span").innerHTML=DGIS_KEY
-    ?"<b>已接入 2GIS</b>：可以搜索任意地址，距离和时间来自 2GIS 实时路况。"
-    :"<b>2GIS 未接入</b>：现在可以选常用地点或手动拖动距离。部署到自己的网站并填入 2GIS API Key 后，就能搜索任意地址并按实时路况算距离。";
 
   // sample route so the page opens with a real comparison
   var ps=places();
-  if(ps.length>1){state.from={name:ps[1][0],lat:ps[1][2],lon:ps[1][3]};state.to={name:ps[0][0],lat:ps[0][2],lon:ps[0][3]};
-    $("from").value=state.from.name;$("to").value=state.to.name;}
-  renderQuick();
+  if(ps.length>1){
+    state.from={name:L(ps[1]),pair:[ps[1][0],ps[1][1]],lat:ps[1][3],lon:ps[1][4]};
+    state.to={name:L(ps[0]),pair:[ps[0][0],ps[0][1]],lat:ps[0][3],lon:ps[0][4]};
+    $("from").value=state.from.name;$("to").value=state.to.name;
+  }
+  applyLang();
+  initMap();
   updateRoute();
+  window.addEventListener("resize",function(){if(!mapReady)drawMap()});
 })();
 </script>
 
