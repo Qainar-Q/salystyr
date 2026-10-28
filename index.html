@@ -60,6 +60,8 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 .quick{display:flex;gap:6px;flex-wrap:wrap}
 .qp{font:inherit;font-size:13px;border:none;background:var(--soft);color:var(--ink);border-radius:999px;padding:6px 10px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .qp svg.i{width:14px;height:14px}
+.qp.me{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.locmsg{font-size:13px;color:var(--warn)}
 
 /* map */
 .mapcard{padding:0;overflow:hidden;position:relative}
@@ -147,6 +149,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14m6-12v14"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8v.5"/></symbol>
+  <symbol id="i-loc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></symbol>
   <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16h14M6 16l1.6-5.2A2 2 0 0 1 9.5 9.4h5a2 2 0 0 1 1.9 1.4L18 16v3h-2v-1.5H8V19H6z"/></symbol>
   <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M4 18v-5a2 2 0 0 1 4 0v2h8v-2a2 2 0 0 1 4 0v5H4z"/><path d="M6 11V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/></symbol>
@@ -175,6 +178,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
           <div class="inp"><input id="to" autocomplete="off"><div class="sugg" id="s-to" hidden></div></div>
         </div>
         <div class="quick" id="quick"></div>
+        <div class="locmsg" id="locmsg" hidden></div>
         <div class="adj">
           <span class="label" data-t="classLabel"></span>
           <div class="seg" id="cls"></div>
@@ -245,7 +249,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
       cond:{normal:"Қалыпты",peak:"Қарбалас",weather:"Жаңбыр, қар",night:"Түн, мереке"},
       prices:"Бағалар",estimate:"болжам",
       best:"Ең тиімді",cheapHard:"Ең арзан, бірақ қазір көлік табу қиын",na:"Бұл санат жоқ",
-      bidRange:"ұсыныс",real:"Нақты баға",tip:"<b>Қарбаласта баға күрт өседі:</b> Yandex пен Uber KZ 1,3–3 есе қымбаттауы мүмкін (Yandex-те шегі ×3). Үнемдеу: Qajet үстеме алмайды, Yandex «Вместе» ×2-ден аспайды, ал 15–20 минут күтсеңіз баға жиі түседі. Нақты бағаны төменге енгізсеңіз, болжам дәлірек болады.",calib:"Нақты бағаға түзетілді",openRoute:"Маршрутпен ашу",openApp:"Қосымшаны ашу",openCopy:"Ашу (мекенжай көшіріледі)",notCity:"Бұл қалада жоқ",closed:"Қазір жұмыс істемейді",copyDest:"Мекенжайды көшіру",copied:"Мекенжай көшірілді — қосымшада қойыңыз",
+      bidRange:"ұсыныс",real:"Нақты баға",tip:"<b>Қарбаласта баға күрт өседі:</b> Yandex пен Uber KZ 1,3–3 есе қымбаттауы мүмкін (Yandex-те шегі ×3). Үнемдеу: Qajet үстеме алмайды, Yandex «Вместе» ×2-ден аспайды, ал 15–20 минут күтсеңіз баға жиі түседі. Нақты бағаны төменге енгізсеңіз, болжам дәлірек болады.",calib:"Нақты бағаға түзетілді",openRoute:"Маршрутпен ашу",myLoc:"Менің орным",here:"Менің орным",locWait:"Анықталуда…",locNo:"Бұл құрылғы орынды анықтай алмайды.",locDenied:"Орынға рұқсат жоқ. Браузер баптауларында осы сайтқа геолокацияны қосыңыз.",locFail:"Орынды анықтау мүмкін болмады. Қайта көріңіз немесе мекенжайды жазыңыз.",openApp:"Қосымшаны ашу",openCopy:"Ашу (мекенжай көшіріледі)",notCity:"Бұл қалада жоқ",closed:"Қазір жұмыс істемейді",copyDest:"Мекенжайды көшіру",copied:"Мекенжай көшірілді — қосымшада қойыңыз",
       tag:{km:"Шақырым мен уақыт бойынша",surge:"Автоматты үстеме ×",shared:"Yandex-пен ортақ жүргізушілер",bid:"Бағаны өзіңіз ұсынасыз",nosurge:"Үстеме баға әзірге жоқ",pool:"Жолсеріктес бірге, үстеме ×2-ден аспайды",ev:"Электромобиль, баға алдын ала көрсетіледі"},
       wait:{fast:["3–7 мин","5–12 мин","15 минуттан көп болуы мүмкін","5–15 мин"],green:["Тек Алматы, 8:00–22:00","Тек Алматы, 8:00–22:00","Тек Алматы, 8:00–22:00","Тек Алматы, 8:00–22:00"],pool:["5–10 мин, жол ұзағырақ","5–15 мин, жол ұзағырақ","15 минуттан көп","10–20 мин"],
         indrive:["Жүргізуші қабылдаса","Төмен бағаны алмауы мүмкін","Төмен бағаны ешкім алмайды","Төмен бағаны ешкім алмайды"],
@@ -275,7 +279,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
       cond:{normal:"Обычно",peak:"Час пик",weather:"Дождь, снег",night:"Ночь, праздник"},
       prices:"Цены",estimate:"оценка",
       best:"Выгоднее всего",cheapHard:"Дешевле всех, но сейчас трудно найти машину",na:"Нет такого тарифа",
-      bidRange:"предложение",real:"Реальная цена",tip:"<b>В пик цены резко растут:</b> Yandex и Uber KZ могут подорожать в 1,3–3 раза (у Yandex предел ×3). Как сэкономить: Qajet без повышающих, «Вместе» в Yandex не выше ×2, а через 15–20 минут цена часто падает. Введите реальную цену ниже — оценка станет точнее.",calib:"Скорректировано по реальной цене",openRoute:"Открыть с маршрутом",openApp:"Открыть приложение",openCopy:"Открыть (адрес скопируется)",notCity:"Нет в этом городе",closed:"Сейчас не работает",copyDest:"Скопировать адрес",copied:"Адрес скопирован — вставьте в приложении",
+      bidRange:"предложение",real:"Реальная цена",tip:"<b>В пик цены резко растут:</b> Yandex и Uber KZ могут подорожать в 1,3–3 раза (у Yandex предел ×3). Как сэкономить: Qajet без повышающих, «Вместе» в Yandex не выше ×2, а через 15–20 минут цена часто падает. Введите реальную цену ниже — оценка станет точнее.",calib:"Скорректировано по реальной цене",openRoute:"Открыть с маршрутом",myLoc:"Моё место",here:"Моё местоположение",locWait:"Определяем…",locNo:"Это устройство не умеет определять местоположение.",locDenied:"Нет доступа к местоположению. Разрешите геолокацию для этого сайта в настройках браузера.",locFail:"Не удалось определить место. Попробуйте ещё раз или введите адрес.",openApp:"Открыть приложение",openCopy:"Открыть (адрес скопируется)",notCity:"Нет в этом городе",closed:"Сейчас не работает",copyDest:"Скопировать адрес",copied:"Адрес скопирован — вставьте в приложении",
       tag:{km:"По км и времени",surge:"Повышающий ×",shared:"Общие водители с Yandex",bid:"Цену предлагаете вы",nosurge:"Без повышающих пока",pool:"С попутчиком, повышающий не выше ×2",ev:"Электромобиль, цена известна заранее"},
       wait:{fast:["3–7 мин","5–12 мин","Может быть больше 15 мин","5–15 мин"],green:["Только Алматы, 8:00–22:00","Только Алматы, 8:00–22:00","Только Алматы, 8:00–22:00","Только Алматы, 8:00–22:00"],pool:["5–10 мин, поездка дольше","5–15 мин, поездка дольше","Больше 15 мин","10–20 мин"],
         indrive:["Если водитель примет","Низкую цену могут не взять","Низкую цену не возьмут","Низкую цену не возьмут"],
@@ -543,8 +547,26 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
     var f=state.from;state.from=state.to;state.to=f;
     $("from").value=state.from?state.from.name:"";$("to").value=state.to?state.to.name:"";updateRoute();
   });
+  function locate(){
+    var btn=$("locbtn"),lab=btn.querySelector("span"),msg=$("locmsg");msg.hidden=true;
+    if(!navigator.geolocation){msg.textContent=t().locNo;msg.hidden=false;return}
+    lab.textContent=t().locWait;
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=pos.coords.latitude,lon=pos.coords.longitude;
+      // switch to the nearest city
+      var bi=0,bd=1e9;CITIES.forEach(function(c,i){var d=hav({lat:lat,lon:lon},{lat:c[6],lon:c[7]});if(d<bd){bd=d;bi=i}});
+      if(bi!==state.city&&bd<80){state.city=bi;$("city").value=bi;try{localStorage.setItem("kz-taxi-city",bi)}catch(e){}
+        if(map){map.setCenter([CITIES[bi][7],CITIES[bi][6]])}renderQuick();}
+      var done=function(name){pick("from",{name:name,lat:lat,lon:lon});var b=$("locbtn");if(b)b.querySelector("span").textContent=t().myLoc;if(!state.to)$("to").focus()};
+      if(DGIS_KEY)reverse(lon,lat,function(n){done(n&&n.indexOf(",")!==n.length-1?n:t().here)});else done(t().here);
+    },function(err){
+      lab.textContent=t().myLoc;msg.textContent=err&&err.code===1?t().locDenied:t().locFail;msg.hidden=false;
+    },{enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+  }
   function renderQuick(){
     var q=$("quick");q.innerHTML="";
+    var me=document.createElement("button");me.className="qp me";me.type="button";me.id="locbtn";
+    me.innerHTML=icon("loc")+"<span>"+t().myLoc+"</span>";me.addEventListener("click",locate);q.appendChild(me);
     places().slice(0,4).forEach(function(p){
       var b=document.createElement("button");b.className="qp";b.type="button";
       b.innerHTML=icon(p[2])+esc(L(p));
